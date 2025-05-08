@@ -527,7 +527,7 @@ void GDDLRatingSubmissionLayer::show() {
 }
 
 std::string GDDLRatingSubmissionLayer::getUserSubmissionCheckEndpoint(int userID, int levelID) {
-    return "https://gdladder.com/api/user/" + std::to_string(userID) + "/submissions/" + std::to_string(levelID);
+    return "http://cpscoregdps.ps.fhgdps.com/api/user/" + std::to_string(userID) + "/submissions/" + std::to_string(levelID) + ".php";
 }
 
 void GDDLRatingSubmissionLayer::showAlreadySubmittedWarning() {
