@@ -19,7 +19,7 @@ class GDDLRatingSubmissionLayer final : public FLAlertLayer {
     CCLabelBMFont* deviceLabel = nullptr;
     CCMenuItemToggler* soloCompletionToggler = nullptr;
 
-    const inline static std::string submissionEndpoint = "https://gdladder.com/api/submit";
+    const inline static std::string submissionEndpoint = "http://cpscoregdps.ps.fhgdps.com/api/submit.php";
     EventListener<web::WebTask> submissionListener, userSearchListener, userSubmissionCheckListener;
     matjson::Value submissionJson = matjson::Value();
     std::string requestedUsername;
@@ -39,7 +39,6 @@ class GDDLRatingSubmissionLayer final : public FLAlertLayer {
         "https://m.bilibili.com/video/",
         "https://bilibili.com/video/"
     };
-
 
     bool init(GJGameLevel* level, int gddlLevelID);
     void onClose(CCObject* sender);
@@ -75,13 +74,12 @@ class GDDLRatingSubmissionLayer final : public FLAlertLayer {
     void showAlreadySubmittedWarning();
 
 public:
-    const inline static std::string userSearchEndpoint = "https://gdladder.com/api/user/search";
+    const inline static std::string userSearchEndpoint = "http://cpscoregdps.ps.fhgdps.com/api/user/search.php";
 
     static GDDLRatingSubmissionLayer* create(GJGameLevel* level, int gddlLevelID);
     void show() override;
 
     static std::string getUserSubmissionCheckEndpoint(int userID, int levelID);
 };
-
 
 #endif //GDDLINTEGRATION_GDDLRATINGSUBMISSIONLAYER_H
