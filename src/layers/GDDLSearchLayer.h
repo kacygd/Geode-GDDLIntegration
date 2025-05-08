@@ -67,7 +67,7 @@ class GDDLSearchLayer final : public FLAlertLayer {
     // assigned when gddl demon split requests a search, restored when the main layer is loaded
     // -1 on savedLowTier means that there's nothing to restore
 
-    const inline static std::string searchEndpoint = "https://gdladder.com/api/level/search";
+    const inline static std::string searchEndpoint = "http://cpscoregdps.ps.fhgdps.com/api/level/search.php";
     inline static int totalOnlineResults = 0;
     inline static std::vector<int> cachedResults = {};
     inline static int onlinePagesFetched = 0;
