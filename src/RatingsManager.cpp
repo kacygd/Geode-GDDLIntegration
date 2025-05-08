@@ -127,10 +127,9 @@ cocos2d::ccColor3B RatingsManager::getTierColor(const int tier) {
     return Utils::hexColorTo3B(hexColor);
 }
 
-std::optional<GDDLRating> RatingsManager::getRating(const int id) {
-    if (!demonMap.contains(id))
-        return {};
-    return demonMap[id];
+std::string RatingsManager::getRequestUrl(const int id) {
+    std::string requestURL = "http://cpscoregdps.ps.fhgdps.com/api/level.php?id=" + std::to_string(id);
+    return requestURL;
 }
 
 std::string RatingsManager::getRequestUrl(const int id) {
