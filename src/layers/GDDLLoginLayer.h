@@ -14,7 +14,7 @@ class GDDLLoginLayer final : public FLAlertLayer {
     CCTextInputNode* passwordTextField = nullptr;
     CCMenuItemSpriteExtra* loginButton = nullptr;
 
-    const inline static std::string loginEndpoint = "https://gdladder.com/api/login";
+    const inline static std::string loginEndpoint = "http://cpscoregdps.ps.fhgdps.com/api/login.php";
     EventListener<web::WebTask> loginListener;
     LoginSettingNodeV3* settingNode;
 
@@ -39,6 +39,5 @@ public:
     void setSettingNode(LoginSettingNodeV3* settingNode);
     static int getUserIDFromUserSearchJSON(matjson::Value jsonResponse, const std::string& requestedUsername);
 };
-
 
 #endif //GDDLINTEGRATION_GDDLLOGINLAYER_H
