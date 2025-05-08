@@ -161,7 +161,7 @@ void GDDLAdvancedLevelInfoPopup::onShowcaseClicked(CCObject *sender) {
 }
 
 void GDDLAdvancedLevelInfoPopup::onOpenInBrowserClicked(CCObject *sender) {
-    std::string url = "https://gdladder.com/level/" + std::to_string(this->gddlLevelID);
+    std::string url = "http://cpscoregdps.ps.fhgdps.com/api/level/" + std::to_string(this->gddlLevelID)".json";
     web::openLinkInBrowser(url);
 }
 
@@ -265,11 +265,11 @@ void GDDLAdvancedLevelInfoPopup::addTierSprite(const int tier) {
 
 
 std::string GDDLAdvancedLevelInfoPopup::getSpreadEndpointUrl(const int levelID) {
-    return "https://gdladder.com/api/level/" + std::to_string(levelID) + "/submissions/spread";
+    return "http://cpscoregdps.ps.fhgdps.com/api/level/" + std::to_string(levelID) + "/submissions/spread.php";
 }
 
 std::string GDDLAdvancedLevelInfoPopup::getSkillsetsEndpointUrl(const int levelID) {
-    return "https://gdladder.com/api/level/" + std::to_string(levelID) + "/tags";
+    return "http://cpscoregdps.ps.fhgdps.com/api/level/" + std::to_string(levelID) + "/tags.php";
 }
 
 GDDLAdvancedLevelInfoPopup *
