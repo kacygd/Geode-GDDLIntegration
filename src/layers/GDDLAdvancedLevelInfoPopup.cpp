@@ -161,7 +161,7 @@ void GDDLAdvancedLevelInfoPopup::onShowcaseClicked(CCObject *sender) {
 }
 
 void GDDLAdvancedLevelInfoPopup::onOpenInBrowserClicked(CCObject *sender) {
-    std::string url = "http://cpscoregdps.ps.fhgdps.com/api/level/" + std::to_string(this->gddlLevelID)".json";
+    std::string url = "http://cpscoregdps.ps.fhgdps.com/api/level/" + std::to_string(this->gddlLevelID) + ".json";
     web::openLinkInBrowser(url);
 }
 
