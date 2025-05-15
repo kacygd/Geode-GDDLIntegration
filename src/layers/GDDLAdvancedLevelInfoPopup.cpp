@@ -265,7 +265,7 @@ void GDDLAdvancedLevelInfoPopup::addTierSprite(const int tier) {
 
 
 std::string GDDLAdvancedLevelInfoPopup::getSpreadEndpointUrl(const int levelID) {
-    return "https://cps.ps.fhgdps.com/geode/mods/gddl/submissions/spread" + std::to_string(levelID) + ".json";
+    return "https://cps.ps.fhgdps.com/geode/mods/gddl/submissions/spread/" + std::to_string(levelID) + ".json";
 }
 
 std::string GDDLAdvancedLevelInfoPopup::getSkillsetsEndpointUrl(const int levelID) {
