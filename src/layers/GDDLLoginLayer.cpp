@@ -4,6 +4,7 @@
 #include "GDDLRatingSubmissionLayer.h"
 #include <Geode/Loader.hpp>
 #include <Geode/ui/LoadingSpinner.hpp>
+#include <Geode/utils/log.hpp>
 
 bool GDDLLoginLayer::init() {
     if (!FLAlertLayer::init(75)) return false;
@@ -75,6 +76,12 @@ bool GDDLLoginLayer::init() {
     prepareSearchListener();
 
     return true;
+}
+
+void GDDLLoginLayer::onClose(cocos2d::CCObject *sender) {
+    log::info("GDDLLoginLayer::onClose called");
+    setKeypadEnabled(false);
+    removeFromParentAndCleanup(true);
 }
 
 void GDDLLoginLayer::onLoginClicked(cocos2d::CCObject *sender) {
