@@ -77,11 +77,6 @@ bool GDDLLoginLayer::init() {
     return true;
 }
 
-void GDDLLoginLayer::onClose(cocos2d::CCObject *sender) {
-    setKeypadEnabled(false);
-    removeFromParentAndCleanup(true);
-}
-
 void GDDLLoginLayer::onLoginClicked(cocos2d::CCObject *sender) {
     std::string username = std::string(usernameTextField->getString());
     if (username.empty()) {
@@ -97,10 +92,10 @@ void GDDLLoginLayer::onLoginClicked(cocos2d::CCObject *sender) {
     // Prepare POST request to GDPS API
     auto req = web::WebRequest();
     req.header("User-Agent", Utils::getUserAgent());
-    req.form({
-        {"userName", username},
-        {"password", password}
-    });
+    req.header("Content-Type", "application/x-www-form-urlencoded");
+    // Manually construct URL-encoded form data
+    std::string body = "userName=" + username + "&password=" + password;
+    req.bodyString(body);
     showLoadingCircle();
     loginListener.setFilter(req.post("https://cps.ps.fhgdps.com/database/accounts/loginGJAccount.php"));
 }
