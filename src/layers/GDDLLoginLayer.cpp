@@ -25,7 +25,7 @@ bool GDDLLoginLayer::init() {
     m_buttonMenu->setPosition({winSize.width / 2 - popupSize.x / 2, winSize.height / 2 - popupSize.y / 2});
     m_mainLayer->addChild(m_buttonMenu, 10);
     // title
-    const auto title = CCLabelBMFont::create("GDPS Login", "goldFont.fnt"); // Đổi tiêu đề thành "GDPS Login"
+    const auto title = CCLabelBMFont::create("GDPS Login", "goldFont.fnt");
     title->setID("gddl-login-title"_spr);
     title->setPosition({popupSize.x / 2, popupSize.y - 20.0f});
     m_buttonMenu->addChild(title);
@@ -69,7 +69,7 @@ bool GDDLLoginLayer::init() {
                                                menu_selector(GDDLLoginLayer::onLoginClicked));
     loginButton->setID("gddl-login-login-button"_spr);
     loginButton->setPosition({popupSize.x / 2, popupSize.y - 160.0f});
-    m_buttonMenu `m_buttonMenu->addChild(loginButton);
+    m_buttonMenu->addChild(loginButton);
     m_buttonMenu->reorderChild(loginButton, 10);
 
     prepareSearchListener();
@@ -94,7 +94,7 @@ void GDDLLoginLayer::onLoginClicked(cocos2d::CCObject *sender) {
         return;
     }
 
-    // Chuẩn bị yêu cầu POST tới API GDPS
+    // Prepare POST request to GDPS API
     auto req = web::WebRequest();
     req.header("User-Agent", Utils::getUserAgent());
     req.form({
@@ -111,9 +111,9 @@ void GDDLLoginLayer::prepareSearchListener() {
             std::string response = res->string().unwrapOr("");
             hideLoadingCircle();
 
-            // Phân tích phản hồi dạng accountID,userID hoặc mã lỗi
+            // Parse response (accountID,userID or error code)
             if (res->code() == 200 && !response.empty() && response != "-1" && response != "-12") {
-                // Phản hồi thành công, ví dụ: "123,456"
+                // Successful response, e.g., "123,456"
                 size_t commaPos = response.find(',');
                 if (commaPos != std::string::npos) {
                     std::string accountIDStr = response.substr(0, commaPos);
@@ -122,7 +122,7 @@ void GDDLLoginLayer::prepareSearchListener() {
                         int accountID = std::stoi(accountIDStr);
                         int userID = std::stoi(userIDStr);
 
-                        // Lưu thông tin đăng nhập
+                        // Save login data
                         saveLoginData(accountID, userID);
                         Notification::create("Logged in!", NotificationIcon::Success, 2)->show();
                         RatingsManager::clearSubmissionCache();
@@ -134,7 +134,7 @@ void GDDLLoginLayer::prepareSearchListener() {
                     Notification::create("Invalid response format", NotificationIcon::Error, 2)->show();
                 }
             } else {
-                // Xử lý lỗi
+                // Handle errors
                 std::string error;
                 if (response == "-1") {
                     error = "Invalid username or password";
