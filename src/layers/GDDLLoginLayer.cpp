@@ -4,10 +4,9 @@
 #include "GDDLRatingSubmissionLayer.h"
 #include <Geode/Loader.hpp>
 #include <Geode/ui/LoadingSpinner.hpp>
-#include <Geode/utils/log.hpp>
 
 bool GDDLLoginLayer::init() {
-    if (!FLAlertLayer::init(75)) return false;
+    if (!FLAlertLayer::init(75)) return false; // that magic number is actually bg opacity btw
 
     const CCPoint popupSize = {280.0f, 185.0f};
     const auto winSize = CCDirector::sharedDirector()->getWinSize();
@@ -26,7 +25,7 @@ bool GDDLLoginLayer::init() {
     m_buttonMenu->setPosition({winSize.width / 2 - popupSize.x / 2, winSize.height / 2 - popupSize.y / 2});
     m_mainLayer->addChild(m_buttonMenu, 10);
     // title
-    const auto title = CCLabelBMFont::create("GDPS Login", "goldFont.fnt");
+    const auto title = CCLabelBMFont::create("GDDL Login", "goldFont.fnt");
     title->setID("gddl-login-title"_spr);
     title->setPosition({popupSize.x / 2, popupSize.y - 20.0f});
     m_buttonMenu->addChild(title);
@@ -67,7 +66,7 @@ bool GDDLLoginLayer::init() {
     const auto loginButtonSprite = ButtonSprite::create("Log in", "bigFont.fnt", "GJ_button_02.png");
     loginButtonSprite->setScale(0.6f);
     loginButton = CCMenuItemSpriteExtra::create(loginButtonSprite, this,
-                                               menu_selector(GDDLLoginLayer::onLoginClicked));
+                                                           menu_selector(GDDLLoginLayer::onLoginClicked));
     loginButton->setID("gddl-login-login-button"_spr);
     loginButton->setPosition({popupSize.x / 2, popupSize.y - 160.0f});
     m_buttonMenu->addChild(loginButton);
@@ -79,12 +78,12 @@ bool GDDLLoginLayer::init() {
 }
 
 void GDDLLoginLayer::onClose(cocos2d::CCObject *sender) {
-    log::info("GDDLLoginLayer::onClose called");
     setKeypadEnabled(false);
     removeFromParentAndCleanup(true);
 }
 
 void GDDLLoginLayer::onLoginClicked(cocos2d::CCObject *sender) {
+    matjson::Value reqJson = matjson::Value();
     std::string username = std::string(usernameTextField->getString());
     if (username.empty()) {
         Notification::create("Missing username", NotificationIcon::Warning, 2)->show();
@@ -95,69 +94,73 @@ void GDDLLoginLayer::onLoginClicked(cocos2d::CCObject *sender) {
         Notification::create("Missing password", NotificationIcon::Warning, 2)->show();
         return;
     }
-
-    // Prepare POST request to GDPS API
+    reqJson["username"] = username;
+    reqJson["password"] = password;
     auto req = web::WebRequest();
     req.header("User-Agent", Utils::getUserAgent());
-    req.header("Content-Type", "application/x-www-form-urlencoded");
-    // Manually construct URL-encoded form data
-    std::string body = "userName=" + username + "&password=" + password;
-    req.bodyString(body);
+    req.bodyJSON(reqJson);
     showLoadingCircle();
-    loginListener.setFilter(req.post("https://cps.ps.fhgdps.com/database/accounts/loginGJAccount.php"));
+    loginListener.setFilter(req.post(loginEndpoint));
 }
 
+// left here because once geode 4.0.0 comes out raw curl won't be needed
 void GDDLLoginLayer::prepareSearchListener() {
     loginListener.bind([this](web::WebTask::Event *e) {
         if (web::WebResponse *res = e->getValue()) {
-            std::string response = res->string().unwrapOr("");
-            hideLoadingCircle();
-
-            // Parse response (accountID,userID or error code)
-            if (res->code() == 200 && !response.empty() && response != "-1" && response != "-12") {
-                // Successful response, e.g., "123,456"
-                size_t commaPos = response.find(',');
-                if (commaPos != std::string::npos) {
-                    std::string accountIDStr = response.substr(0, commaPos);
-                    std::string userIDStr = response.substr(commaPos + 1);
-                    try {
-                        int accountID = std::stoi(accountIDStr);
-                        int userID = std::stoi(userIDStr);
-
-                        // Save login data
-                        saveLoginData(accountID, userID);
-                        Notification::create("Logged in!", NotificationIcon::Success, 2)->show();
-                        RatingsManager::clearSubmissionCache();
-                        closeLoginPanel();
-                    } catch (...) {
-                        Notification::create("Invalid response format", NotificationIcon::Error, 2)->show();
+            const auto jsonResponse = res->json().unwrapOr(matjson::Value());
+            if (res->code() == 200) {
+                Notification::create("Logged in!", NotificationIcon::Success, 2)->show();
+                saveLoginData("gddl.sid", "gddl.sid.sig", 0);
+                std::optional<std::vector<std::string>> cookies = res->getAllHeadersNamed("set-cookie");
+                if (cookies.has_value()) {
+                    std::map<std::string, std::string> cookiesMap;
+                    for (const auto& cookie : cookies.value()) {
+                        const auto [name, value] = getCookieValue(cookie.c_str());
+                        cookiesMap[name] = value;
+                    }
+                    if (cookiesMap.contains("gddl.sid") && cookiesMap.contains("gddl.sid.sig")) {
+                        // get uid
+                        std::string decodedCookie = ZipUtils::base64URLDecode(cookiesMap["gddl.sid"]);
+                        const auto decodedJson = matjson::parse(decodedCookie);
+                        if (decodedJson.isOk() && decodedJson.unwrap().contains("userID")) {
+                            const int uid = decodedJson.unwrap()["userID"].asInt().unwrap();
+                            saveLoginData(cookiesMap["gddl.sid"], cookiesMap["gddl.sid.sig"], uid);
+                            RatingsManager::clearSubmissionCache();
+                            Notification::create("Logged in!", NotificationIcon::Success, 2)->show();
+                            closeLoginPanel();
+                        } else {
+                            hideLoadingCircle();
+                            Notification::create("Failed to obtain the user id!", NotificationIcon::Error, 2)->show();
+                        }
+                    } else {
+                        hideLoadingCircle();
+                        Notification::create("Server returned invalid response", NotificationIcon::Error, 2)->show();
                     }
                 } else {
-                    Notification::create("Invalid response format", NotificationIcon::Error, 2)->show();
+                    hideLoadingCircle();
+                    Notification::create("An error occurred!", NotificationIcon::Error, 2)->show();
                 }
             } else {
-                // Handle errors
-                std::string error;
-                if (response == "-1") {
-                    error = "Invalid username or password";
-                } else if (response == "-12") {
-                    error = "Account is banned or inactive";
-                } else {
-                    error = "Unknown error";
+                // not success!
+                std::string error = "Unknown error";
+                if (jsonResponse.contains("error")) {
+                    error = jsonResponse["error"].asString().unwrap();
                 }
+                hideLoadingCircle();
                 Notification::create(error, NotificationIcon::Error, 2)->show();
             }
         } else if (e->isCancelled()) {
             hideLoadingCircle();
-            Notification::create("Request cancelled", NotificationIcon::Error, 2)->show();
+            Notification::create("An error occurred", NotificationIcon::Error, 2)->show();
         }
     });
 }
 
-void GDDLLoginLayer::saveLoginData(int accountID, int userID) {
+void GDDLLoginLayer::saveLoginData(const std::string &sid, const std::string &sig, const int uid) {
     Mod::get()->setSavedValue("login-username", std::string(usernameTextField->getString()));
-    Mod::get()->setSavedValue("login-accountid", accountID);
-    Mod::get()->setSavedValue("login-userid", userID);
+    Mod::get()->setSavedValue("login-sid", sid);
+    Mod::get()->setSavedValue("login-sig", sig);
+    Mod::get()->setSavedValue("login-userid", uid);
 }
 
 void GDDLLoginLayer::closeLoginPanel() {
@@ -180,12 +183,14 @@ void GDDLLoginLayer::hideLoadingCircle() {
 }
 
 size_t GDDLLoginLayer::writeCallback(char *contents, size_t size, size_t nmemb, void *userp) {
-    ((std::string *)userp)->append((char *)contents, size * nmemb);
+    // stack overflow yay https://stackoverflow.com/questions/44994203/how-to-get-the-http-response-string-using-curl-in-c
+    ((std::string *) userp)->append((char *) contents, size * nmemb);
     return size * nmemb;
 }
 
 std::pair<std::string, std::string> GDDLLoginLayer::getCookieValue(const char *content) {
     std::string cookie = content;
+    // get cookie name
     int equalsPos = cookie.find('=');
     std::string cookieName = cookie.substr(0, equalsPos);
     std::string cookieValue = cookie.substr(equalsPos + 1, cookie.find(';', equalsPos) - equalsPos - 1);
@@ -211,6 +216,7 @@ void GDDLLoginLayer::setSettingNode(LoginSettingNodeV3 *settingNode) {
     this->settingNode = settingNode;
 }
 
+// -2 = error, -1 = not found, >0 = uid
 int GDDLLoginLayer::getUserIDFromUserSearchJSON(matjson::Value jsonResponse, const std::string& requestedUsername) {
     if (!jsonResponse.isArray()) {
         return -2;
