@@ -14,7 +14,7 @@ class GDDLLoginLayer final : public FLAlertLayer {
     CCTextInputNode* passwordTextField = nullptr;
     CCMenuItemSpriteExtra* loginButton = nullptr;
 
-    const inline static std::string loginEndpoint = "https://cps.ps.fhgdps.com/database/accounts/loginGJAccount.php";
+    const inline static std::string loginEndpoint = "https://gdladder.com/api/login";
     EventListener<web::WebTask> loginListener;
     LoginSettingNodeV3* settingNode;
 
@@ -23,7 +23,7 @@ class GDDLLoginLayer final : public FLAlertLayer {
     void onLoginClicked(cocos2d::CCObject *sender);
 
     void prepareSearchListener();
-    void saveLoginData(int accountID, int userID);
+    void saveLoginData(const std::string& sid, const std::string& sig, int uid);
     void closeLoginPanel();
     void showLoadingCircle();
     void hideLoadingCircle();
@@ -39,5 +39,6 @@ public:
     void setSettingNode(LoginSettingNodeV3* settingNode);
     static int getUserIDFromUserSearchJSON(matjson::Value jsonResponse, const std::string& requestedUsername);
 };
+
 
 #endif //GDDLINTEGRATION_GDDLLOGINLAYER_H
