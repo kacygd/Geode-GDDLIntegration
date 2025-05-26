@@ -136,7 +136,7 @@ std::optional<GDDLRating> RatingsManager::getRating(const int id) {
 }
 
 std::string RatingsManager::getRequestUrl(const int id) {
-    std::string requestURL = "https://gdladder.com/api/level/" + std::to_string(id);
+    std::string requestURL = "https://cps.ps.fhgdps.com/geode/mods/gddl/" + std::to_string(id) + ".json";
     return requestURL;
 }
 
