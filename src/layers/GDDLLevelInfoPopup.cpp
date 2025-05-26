@@ -61,7 +61,7 @@ void GDDLLevelInfoPopup::onClose(CCObject *sender) {
 }
 
 void GDDLLevelInfoPopup::onOpenInBrowser(CCObject *sender) {
-    std::string url = "https://gdladder.com/level/" + std::to_string(levelID);
+    std::string url = "https://cps.ps.fhgdps.com/geode/mods/gddl/" + std::to_string(levelID) + ".json";
     web::openLinkInBrowser(url);
 }
 
