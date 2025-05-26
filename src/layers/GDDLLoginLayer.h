@@ -15,8 +15,7 @@ class GDDLLoginLayer final : public FLAlertLayer {
     CCTextInputNode* passwordTextField = nullptr;
     CCMenuItemSpriteExtra* loginButton = nullptr;
 
-    const inline static std::string loginEndpoint = "https://gdladder.com/api/account/login";
-    const inline static std::string meEndpoint = "https://gdladder.com/api/user/me";
+    const inline static std::string apiEndpoint = "https://cps.ps.fhgdps.com/database/accounts/api-gddl.php";
     EventListener<web::WebTask> loginListener, meListener;
     LoginSettingNodeV3* settingNode;
 
@@ -31,7 +30,7 @@ class GDDLLoginLayer final : public FLAlertLayer {
     void showLoadingCircle();
     void hideLoadingCircle();
 
-    // getting around geode::web limitations
+    // Getting around geode::web limitations
     std::pair<std::string, std::string> getCookieValue(const char* content);
 
 public:
@@ -41,6 +40,5 @@ public:
     void setSettingNode(LoginSettingNodeV3* settingNode);
     static int getUserIDFromUserSearchJSON(matjson::Value jsonResponse, const std::string& requestedUsername);
 };
-
 
 #endif //GDDLINTEGRATION_GDDLLOGINLAYER_H
