@@ -101,10 +101,9 @@ void GDDLLoginLayer::onLoginClicked(cocos2d::CCObject *sender) {
     req.header("User-Agent", Utils::getUserAgent());
     req.bodyJSON(reqJson);
     showLoadingCircle();
-    loginListener.setFilter(req.post(loginEndpoint));
+    loginListener.setFilter(req.post(apiEndpoint));
 }
 
-// left here because once geode 4.0.0 comes out raw curl won't be needed
 void GDDLLoginLayer::prepareSearchListener() {
     loginListener.bind([this](web::WebTask::Event *e) {
         if (web::WebResponse *res = e->getValue()) {
@@ -125,7 +124,7 @@ void GDDLLoginLayer::prepareSearchListener() {
                         req.header("User-Agent", Utils::getUserAgent());
                         req.header("Cookie", fmt::format("gddl.sid={}", cookiesMap["gddl.sid"]));
                         showLoadingCircle();
-                        meListener.setFilter(req.get(meEndpoint));
+                        meListener.setFilter(req.get(apiEndpoint));
                     } else {
                         hideLoadingCircle();
                         Notification::create("Error during login - no session cookie received", NotificationIcon::Error, 2)->show();
