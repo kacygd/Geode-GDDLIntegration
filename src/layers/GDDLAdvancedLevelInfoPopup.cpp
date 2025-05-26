@@ -162,7 +162,7 @@ void GDDLAdvancedLevelInfoPopup::onShowcaseClicked(CCObject *sender) {
 }
 
 void GDDLAdvancedLevelInfoPopup::onOpenInBrowserClicked(CCObject *sender) {
-    std::string url = "https://gdladder.com/level/" + std::to_string(this->gddlLevelID);
+    std::string url = "https://cps.ps.fhgdps.com/geode/mods/gddl/" + std::to_string(this->gddlLevelID) + ".json";
     web::openLinkInBrowser(url);
 }
 
@@ -266,7 +266,7 @@ void GDDLAdvancedLevelInfoPopup::addTierSprite(const int tier) {
 
 
 std::string GDDLAdvancedLevelInfoPopup::getSpreadEndpointUrl(const int levelID) {
-    return "https://gdladder.com/api/level/" + std::to_string(levelID) + "/submissions/spread";
+    return "https://cps.ps.fhgdps.com/geode/mods/gddl/submissions/spread/" + std::to_string(levelID) + ".json";
 }
 
 std::string GDDLAdvancedLevelInfoPopup::getSkillsetsEndpointUrl(const int levelID) {
