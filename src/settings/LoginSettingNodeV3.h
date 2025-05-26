@@ -9,7 +9,7 @@
 using namespace geode::prelude;
 
 class LoginSettingNodeV3 : public SettingNodeV3 {
-    const inline static std::string logoutEndpoint = "https://gdladder.com/api/account/logout";
+    const inline static std::string logoutEndpoint = "https://cps.ps.fhgdps.com/database/accounts/api-gddl.php";
     EventListener<web::WebTask> logoutListener;
 
     void prepareLogoutListener();
@@ -36,6 +36,5 @@ public:
 
     static LoginSettingNodeV3* create(std::shared_ptr<DummySettingLoginV3> setting, float width);
 };
-
 
 #endif //GDDLINTEGRATION_LOGINSETTINGNODEV3_H
